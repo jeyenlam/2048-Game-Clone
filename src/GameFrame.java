@@ -7,6 +7,7 @@ public class GameFrame extends JFrame implements ActionListener {
     Tile tile;
     Board board;
     Text2048 text2048;
+    GameController gc;
     int size;
 
     JFrame frame;
@@ -27,6 +28,7 @@ public class GameFrame extends JFrame implements ActionListener {
     public GameFrame() {
 
         text2048 = new Text2048();
+        gc = text2048.gc;
         this.size = text2048.size;
         board = text2048.gc.board;
 
@@ -85,6 +87,10 @@ public class GameFrame extends JFrame implements ActionListener {
         keyPanel.add(downButton, c);
         mainPanel.add(keyPanel);
 
+        leftButton.addActionListener(this);
+        rightButton.addActionListener(this);
+        upButton.addActionListener(this);
+        downButton.addActionListener(this);
 
         //////////////////////// GAME PANEL /////////////////////////
 
@@ -93,19 +99,7 @@ public class GameFrame extends JFrame implements ActionListener {
 
         gamePanel.setLayout(new GridLayout(4, 4));
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                //System.out.println(board.getTile(i, j));
-                //board.setTile(i,j,new Tile(2));
-                if (board.getTile(i,j) == null){
-                    gamePanel.add(new Tile());
-                }
-                else {
-                    gamePanel.add(board.getTile(i,j));
-                }
-            }
-        }
-
+        updateBoard();
 
         mainPanel.add(gamePanel);
 
@@ -118,22 +112,64 @@ public class GameFrame extends JFrame implements ActionListener {
         frame.setVisible(true);
     }
 
+    public void updateBoard(){
+        gamePanel.removeAll();
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (board.getTile(i, j) == null) {
+                    gamePanel.add(new Tile());
+                } else {
+                    gamePanel.add(board.getTile(i, j));
+                }
+            }
+        }
+        gamePanel.validate();
+        gamePanel.repaint();
+
+
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                System.out.print(board.getTile(row, col) + " ");
+            }
+            System.out.println();
+        }
+    }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
+        if (e.getSource()==leftButton){
+            for (int row =0; row < size; row++){
+                gc.recurseLeft(row);
+            }
+            updateBoard();
+        }
+        if (e.getSource()==rightButton){
+            for (int row =0; row < size; row++){
+                gc.recurseRight(row);
+            }
+            updateBoard();
+        }
+        if (e.getSource()==upButton){
+            for (int col =0; col < size; col++){
+                gc.recurseUp(col);
+            }
+            updateBoard();
+        }
+        if (e.getSource()==downButton){
+            for (int col =0; col < size; col++){
+                gc.recurseDown(col);
+            }
+            updateBoard();
+        }
     }
 
     public static void main(String[] args) {
-
         //Text2048 text2048 = new Text2048();
         GameFrame frame = new GameFrame();
-        //System.out.println(board.getTile(0,3));
 
-        for (int i =0; i < frame.size; i++){
-            for (int j=0; j < frame.size; j++){
-                System.out.println(frame.board.getTile(i,j));
-                }
-            }
-        }
+        System.out.println("-----------------------------------");
     }
+}

@@ -172,7 +172,7 @@ public class GameController {
     }
 
     public void recurseUp(int col){
-        for (int index=0; index < size; index++){
+        for (int index=size-1; index >= 0; index--){
             if (board.getTile(index,col) != null){
                 tile = board.getTile(index,col);
                 moveUp(index,col,tile);
@@ -190,7 +190,7 @@ public class GameController {
             return;
         }
         if (board.getTile(row-1,col)==null){
-            board.setTile(row,col-1,tile);
+            board.setTile(row-1,col,tile);
             board.setTile(row,col,null);
         }
         moveUp(row-1,col,tile);
@@ -215,10 +215,10 @@ public class GameController {
             return;
         }
         if (board.getTile(row+1,col)==null){
-            board.setTile(row,col+1,tile);
+            board.setTile(row+1,col,tile);
             board.setTile(row,col,null);
         }
-        moveUp(row+1,col,tile);
+        moveDown(row+1,col,tile);
     }
 
     /////////////////////////////////////////////////////
