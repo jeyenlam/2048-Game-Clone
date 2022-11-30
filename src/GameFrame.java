@@ -2,89 +2,114 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class GameFrame extends JFrame implements ActionListener {
-    Tile tile;
+public class GameFrame extends JFrame implements ActionListener, KeyListener {
+
     Board board;
     Text2048 text2048;
     GameController gc;
-    int size;
+    GameStatus status;
 
-    JFrame frame;
+    int size, winningVal;
 
-    JPanel mainPanel;
-    JPanel gamePanel;
-    JPanel keyPanel;
-    JMenuBar menu;
-    JMenuItem reset;
-    JMenuItem quit;
-    JMenuItem resize;
+    int round=1, score=0, bestScore = 0;
 
-    JButton upButton;
-    JButton downButton;
-    JButton leftButton;
-    JButton rightButton;
+    JFrame frame; JMenuBar menu;
+
+    JMenuItem reset, quit, resize;
+
+    JPanel mainPanel, gamePanel, keyPanel, statusPanel;
+
+    JButton upButton, downButton, leftButton, rightButton;
+
+    JLabel roundLabel, scoreLabel, bestScoreLabel;
 
     public GameFrame() {
 
         text2048 = new Text2048();
         gc = text2048.gc;
-        this.size = text2048.size;
-        board = text2048.gc.board;
+        size = gc.size;
+        winningVal = gc.winningVal;
+        board = gc.board;
+        status = gc.status;
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame = new JFrame("Let's 2048");
+        frame = new JFrame("Let's 2048 ヽ(>∀ <☆)ノ");
         frame.setLayout(null);
-        frame.setSize(413, 600);
+        frame.setSize(414, 590);
 
         mainPanel = new JPanel();
-        mainPanel.setSize(403, 540);
+        mainPanel.setBackground(Color.blue);
+        mainPanel.setSize(413, 590);
         mainPanel.setLayout(null);
 
-
-        ////////////////////// MENU & OPTIONS //////////////////////////
+        // MENU
         menu = new JMenuBar();
         frame.setJMenuBar(menu);
 
-        resize = new JMenuItem("Resize");
-        reset = new JMenuItem("Reset");
-        quit = new JMenuItem("Quit");
+        resize = new JMenuItem("           Resize");
+        reset = new JMenuItem("             Reset");
+        quit = new JMenuItem("              Quit");
 
         menu.add(resize);
         menu.add(reset);
         menu.add(quit);
 
-        //////////////////////// KEY PANEL /////////////////////////
+        resize.addActionListener(this);
+        reset.addActionListener(this);
+        quit.addActionListener(this);
+
+        // STATUS PANEL
+        statusPanel = new JPanel();
+        statusPanel.setSize(414,30);
+
+        roundLabel = new JLabel("Round + " + round);
+        scoreLabel = new JLabel("Score " + score);
+        bestScoreLabel = new JLabel("Best " + bestScore);
+
+        statusPanel.add(roundLabel);
+        statusPanel.add(scoreLabel);
+        statusPanel.add(bestScoreLabel);
+
+        mainPanel.add(statusPanel);
+
+        // GAME PANEL
+        gamePanel = new JPanel();
+        gamePanel.setLocation(0,30);
+        gamePanel.setSize(400, 400);
+
+        gamePanel.setLayout(new GridLayout(size,size));
+        updateBoard();
+        mainPanel.add(gamePanel);
+
+        // KEY PANEL
         keyPanel = new JPanel();
         keyPanel.setLayout(new GridBagLayout());
-        keyPanel.setLocation(0, 400);
-        keyPanel.setSize(400, 150);
+        keyPanel.setLocation(0, 430);
+        keyPanel.setSize(414, 100);
         keyPanel.setBackground(Color.WHITE);
         GridBagConstraints c = new GridBagConstraints();
-
 
         upButton = new JButton("    UP    ");
         downButton = new JButton("DOWN");
         leftButton = new JButton("LEFT");
         rightButton = new JButton("RIGHT");
 
-
-        c.gridx = 1;
-        c.gridy = 0;
+        c.gridx = 1; c.gridy = 0;
         keyPanel.add(upButton, c);
 
-        c.gridx = 0;
-        c.gridy = 1;
+        c.gridx = 0; c.gridy = 1;
         keyPanel.add(leftButton, c);
 
-        c.gridx = 2;
-        c.gridy = 1;
+        c.gridx = 2; c.gridy = 1;
         keyPanel.add(rightButton, c);
 
-        c.gridx = 1;
-        c.gridy = 2;
+        c.gridx = 1; c.gridy = 2;
         keyPanel.add(downButton, c);
+
         mainPanel.add(keyPanel);
 
         leftButton.addActionListener(this);
@@ -92,27 +117,25 @@ public class GameFrame extends JFrame implements ActionListener {
         upButton.addActionListener(this);
         downButton.addActionListener(this);
 
-        //////////////////////// GAME PANEL /////////////////////////
-
-        gamePanel = new JPanel();
-        gamePanel.setSize(400, 400);
-
-        gamePanel.setLayout(new GridLayout(4, 4));
-
-        updateBoard();
-
-        mainPanel.add(gamePanel);
-
-        /////////////////////////////////////////////////////////////////
-
+        //
         frame.add(mainPanel);
+        frame.addKeyListener(this);
         frame.setFocusable(true);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setVisible(true);
     }
 
+
     public void updateBoard(){
+
+        score = gc.score;
+        bestScore = gc.bestScore;
+
+        roundLabel.setText("Round " + round + "            ");
+        scoreLabel.setText("Score " + score+ "            ");
+        bestScoreLabel.setText("Best Score " + bestScore+ "            ");
+
         gamePanel.removeAll();
 
         for (int i = 0; i < size; i++) {
@@ -126,50 +149,130 @@ public class GameFrame extends JFrame implements ActionListener {
         }
         gamePanel.validate();
         gamePanel.repaint();
+    }
 
+    public void checkStatus(){
 
-        for (int row = 0; row < 4; row++) {
-            for (int col = 0; col < 4; col++) {
-                System.out.print(board.getTile(row, col) + " ");
+        status = gc.status;
+
+        if (status == GameStatus.WON){
+            JOptionPane.showMessageDialog(
+                    null,
+                    "You won the game!",
+                    "CONGRATULATIONS °˖✧◝(⁰▿⁰)◜✧˖°",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+        else if ( status == GameStatus.LOST){
+            JOptionPane.showMessageDialog(
+                    null,
+                    "You lost :(",
+                    "GOOD LUCK ON NEXT ROUND へ[ •́ ‸ •̀ ]ʋ",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+        if (status != GameStatus.IN_PROGRESS){
+            round += 1;
+            int input = JOptionPane.showConfirmDialog(null,
+                    "Do you want to continue playing?",
+                    "Next round? ٩(◕‿◕)۶",
+                    JOptionPane.YES_NO_OPTION);
+            if (input == 1){
+                System.exit(0);
             }
-            System.out.println();
+            gc.reset();
+            updateBoard();
         }
     }
 
+    public void move(JButton button){
+        for (int index = 0; index < size; ++index){
+            if (button == leftButton){
+                gc.recurseLeft(index);
+            }
+            else if (button == rightButton){
+                gc.recurseRight(index);
+            }
+            else if (button == upButton){
+                gc.recurseUp(index);
+            }
+            else if (button == downButton){
+                gc.recurseDown(index);
+            }
+        }
+        updateBoard();
+        checkStatus();
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource()==leftButton){
-            for (int row =0; row < size; row++){
-                gc.recurseLeft(row);
-            }
-            updateBoard();
+            move(leftButton);
         }
         if (e.getSource()==rightButton){
-            for (int row =0; row < size; row++){
-                gc.recurseRight(row);
-            }
-            updateBoard();
+            move(rightButton);
         }
         if (e.getSource()==upButton){
-            for (int col =0; col < size; col++){
-                gc.recurseUp(col);
-            }
-            updateBoard();
+            move(upButton);
         }
         if (e.getSource()==downButton){
-            for (int col =0; col < size; col++){
-                gc.recurseDown(col);
+            move(downButton);
+        }
+
+        if (e.getSource() == reset){
+            int input = JOptionPane.showConfirmDialog(null,
+                    "Do you want to reset the game?",
+                    "Reset ｢(ﾟﾍﾟ) <",
+                    JOptionPane.YES_NO_OPTION);
+            if (input == 0){
+                gc.reset();
+                updateBoard();
             }
+        }
+        if (e.getSource() == quit){
+            int input = JOptionPane.showConfirmDialog(null,
+                    "Do you want to quit?",
+                    "Quit ｡･ﾟﾟ*(>д <)*ﾟﾟ･｡",
+                    JOptionPane.YES_NO_OPTION);
+            if (input == 0){
+                System.exit(0);
+            }
+        }
+        if (e.getSource() == resize){
+            text2048.setSize();
+            size = text2048.size;
+            gc = new GameController(size, winningVal);
+            board = gc.board;
+
+            gamePanel.setLayout(new GridLayout(size,size));
             updateBoard();
         }
     }
 
-    public static void main(String[] args) {
-        //Text2048 text2048 = new Text2048();
-        GameFrame frame = new GameFrame();
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
 
-        System.out.println("-----------------------------------");
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_LEFT){
+            move(leftButton);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT){
+            move(rightButton);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_UP){
+            move(upButton);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_DOWN){
+            move(downButton);
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
+
+    public static void main(String[] args) {
+        new GameFrame();
     }
 }

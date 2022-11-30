@@ -3,81 +3,97 @@ import java.awt.*;
 
 public class Tile extends JComponent {
 
-    Tile next;
     int val;
 
-    static final int SCALE = 100;
-    static final int BORDER = SCALE/20;
+    static int SCALE = 100;
     static final int FONT_SIZE = (int) (SCALE*0.5);
     static final Font FONT = new Font("Arial", Font.PLAIN, FONT_SIZE);
 
-
-    //default constructor
+    /**
+     * Default constructor of Tile
+     */
     public Tile() {
-        //val = 2;
         setFont(FONT);
         setPreferredSize(new Dimension(SCALE,SCALE));
     }
 
-    //constructor that take a value and set
-    //the Tile value to that value
+    /**
+     * Constructor of tile that set a tile
+     * to the value after checking if the value if a number
+     * of power 2
+     * Set font and graphic of the tile
+     * @param val
+     */
     public Tile(int val){
+        setVal(val);
+        setFont(FONT);
+        setPreferredSize(new Dimension(SCALE,SCALE));
+    }
+
+    /**
+     * Set value of a tile to the argument
+     * after checking if the argument is valid
+     * @param val
+     */
+    public void setVal(int val){
         if (power2(val)){
             this.val = val;
         }
-        setFont(FONT);
-        setPreferredSize(new Dimension(SCALE,SCALE));
+        else {
+            throw new IllegalArgumentException("Invalid input");
+        }
     }
 
-    //setters & getters
-    public void setVal(int val){
-        this.val = val;
+    /**
+     * Get value of a tile
+     * @return val value of the tile
+     */
+    public int getVal(Tile tile){
+        return tile.val;
     }
 
-    public int getVal(){
-        return val;
-    }
-
-    //recursive
+    /**
+     * Check if a value is a number of power 2
+     * @param value
+     * @return true if the argument is a number of power 2 and false otherwise
+     */
     public boolean power2(double value){
-        //base case
         if (value ==2){
             return true;
         }
         else if (value > 2){
             return power2(value/2);
         }
-//        else {
-//            throw new IllegalArgumentException();
-//        }
         return false;
     }
 
-
-
+    /**
+     * Covert a tile's value into string
+     * @return val as a string
+     */
     public String toString(){
         return String.valueOf(val);
     }
 
 
     @Override
-    public void paintComponent(Graphics g){
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        ((Graphics2D)g).setRenderingHint(
+        ((Graphics2D) g).setRenderingHint(
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.setColor(Color.WHITE);
-        g.fillRect(0,0,getWidth(),getHeight());
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         FontMetrics metrics = getFontMetrics(FONT);
 
         g.setColor(Color.black);
-        g.fillRoundRect(0,0,100, 100, 50,50);
+        g.fillRoundRect(0, 0, SCALE, SCALE, SCALE - 50, SCALE - 50);
 
         Color color;
-        switch (val){
+        switch (val) {
             case 0:
                 color = Color.WHITE;
                 break;
@@ -114,36 +130,19 @@ public class Tile extends JComponent {
             case 2048:
                 color = new Color(255, 36, 58);
                 break;
-            default :
+            default:
                 color = new Color(36, 91, 255);
-
+                break;
         }
         g.setColor(color);
-        //g.setColor(Color.orange);
-        g.fillRoundRect(3,3,94,94,50,50);
+        g.fillRoundRect(3, 3, SCALE - 6, SCALE - 6, SCALE - 50, SCALE - 50);
 
         g.setColor(Color.BLACK); //font color
-        if (val != 0){
+        if (val != 0) {
             String txt = Integer.toString(val);
             g.drawString(txt,
                     (getWidth() - metrics.stringWidth(txt)) / 2,
                     getHeight() / 2 + metrics.getAscent() / 3);
         }
-
-
     }
-
-    public static void main(String[] args){
-
-        JFrame frame = new JFrame();
-        JPanel panel = new JPanel();
-        Tile tile = new Tile();
-        tile.setVal(4);
-        panel.add(tile);
-        frame.add(panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-    }
-
 }
