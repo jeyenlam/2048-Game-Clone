@@ -14,9 +14,9 @@ public class GameController {
      * Default constructor of GameController class
      */
     public GameController(){
-        size = 4;
+        setSize(4);
         board = new Board();
-        winningVal = 2048;
+        setWinningVal(2048);
         status = GameStatus.IN_PROGRESS;
         newTile();
         newTile();
@@ -28,9 +28,9 @@ public class GameController {
      * @param winningVal winning value of the game specified by players' input
      */
     public GameController(int size, int winningVal){
-        this.size = size;
+        setSize(size);
         board = new Board(size);
-        this.winningVal = winningVal;
+        setWinningVal(winningVal);
         status = GameStatus.IN_PROGRESS;
         newTile();
         newTile();
@@ -71,19 +71,22 @@ public class GameController {
     /**
      * Set the winning value to the argument
      * @param winningVal
+     * @throws IllegalArgumentException if the argument is not a value with power of 2
      */
     public void setWinningVal(int winningVal) {
+        tile = new Tile();
         if (tile.power2(winningVal)){
             this.winningVal = winningVal;
         }
         else {
-            throw new IllegalArgumentException("This is not a number of power 2");
+            throw new IllegalArgumentException("This is not a number with power of 2");
         }
     }
 
     /**
      * Set the board's size to the argument
      * @param size
+     * @throws IllegalArgumentException if size is invalid
      */
     public void setSize(int size) {
         if (size < 4 || size > 10){
@@ -93,8 +96,8 @@ public class GameController {
     }
 
     /**
-     * Create tiles assigned with random valid number
-     * at random valid position in the board
+     * Create a tile at random position in the board
+     * and assign it with random number of either 2 or 4
      */
     public void newTile(){
         int random = new Random().nextBoolean()? 2 : 4;
@@ -112,7 +115,7 @@ public class GameController {
     }
 
     /**
-     * Helper method of newTile(), helps to randomly pick a
+     * Helper method of newTile(), helps randomly pick an
      * available position on the board
      * @return rd a randomly picked position
      */
@@ -188,7 +191,7 @@ public class GameController {
      * holding the same value.
      * @param row position of the tile in terms of rows
      * @param col position of the tile in terms of rows
-     * @return true if the tile
+     * @return true if the tile has at least 1 neighbor tile holding the same value
      */
     private boolean findSimilarNeighbors(int row, int col){
         tile = board.getTile(row,col);

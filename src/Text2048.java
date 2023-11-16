@@ -2,15 +2,16 @@ import javax.swing.*;
 
 public class Text2048 {
 
-    GameController gc;
     int size;
     int tempSize;
     int winningVal;
     int tempWinningVal;
 
-    Tile tile = new Tile();
+    GameController gc;
+    Tile tile;
 
     public Text2048() {
+        tile = new Tile();
         tempSize = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter size:"));
         while (tempSize < 4 || tempSize > 10) {
             JOptionPane.showMessageDialog(
@@ -23,7 +24,7 @@ public class Text2048 {
         size = tempSize;
 
         tempWinningVal = Integer.parseInt((JOptionPane.showInputDialog(null, "Winning Value:")));
-        while ((!tile.power2(tempWinningVal)) || (tile.power2(tempWinningVal) && tempWinningVal < 16)) {
+        while (!tile.power2(tempWinningVal) ||  tempWinningVal < 16) {
             JOptionPane.showMessageDialog(
                     null,
                     "Must be a number of power 2 & greater than 16",
@@ -41,7 +42,7 @@ public class Text2048 {
     public Text2048(int size, int winningVal) {
         this.size = size;
         this.winningVal = winningVal;
-        tile.SCALE = 400 / size;
+        Tile.SCALE = 400 / size;
         gc = new GameController(size, winningVal);
     }
 

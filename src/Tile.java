@@ -19,8 +19,7 @@ public class Tile extends JComponent {
 
     /**
      * Constructor of tile that set a tile
-     * to the value after checking if the value if a number
-     * of power 2
+     * to the value
      * Set font and graphic of the tile
      * @param val
      */
@@ -34,6 +33,7 @@ public class Tile extends JComponent {
      * Set value of a tile to the argument
      * after checking if the argument is valid
      * @param val
+     * @throws IllegalArgumentException if value is not power of 2
      */
     public void setVal(int val){
         if (power2(val)){
@@ -75,7 +75,11 @@ public class Tile extends JComponent {
         return String.valueOf(val);
     }
 
-
+    /**
+     * Visualize tiles as squares of different colors
+     * based on the value it holds
+     * @param g an object of Graphic class
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
